@@ -27,18 +27,15 @@ UINT QuantumCircuitOptimizer::get_leftmost_commute_index(UINT gate_index){
 }
 
 UINT QuantumCircuitOptimizer::get_merged_gate_size(UINT gate_index1, UINT gate_index2){
-    auto fetch_target_index = [](const std::vector<TargetQubitInfo>& info_list) { std::vector<UINT> index_list; for (auto val : info_list) index_list.push_back(val.index()); return index_list; };
-    auto fetch_control_index = [](const std::vector<ControlQubitInfo>& info_list) { std::vector<UINT> index_list; for (auto val : info_list) index_list.push_back(val.index()); return index_list; };
+    auto target_index_list1 = circuit->gate_list[gate_index1]->get_target_index_list();
+    auto target_index_list2 = circuit->gate_list[gate_index2]->get_target_index_list();
+    auto control_index_list1 = circuit->gate_list[gate_index1]->get_control_index_list();
+    auto control_index_list2 = circuit->gate_list[gate_index2]->get_control_index_list();
 
-    auto target_index_list1 = fetch_target_index(circuit->gate_list[gate_index1]->target_qubit_list);
-    auto target_index_list2 = fetch_target_index(circuit->gate_list[gate_index2]->target_qubit_list);
-    auto control_index_list1 = fetch_control_index(circuit->gate_list[gate_index1]->control_qubit_list);
-    auto control_index_list2 = fetch_control_index(circuit->gate_list[gate_index2]->control_qubit_list);
-
-	std::sort(target_index_list1.begin(), target_index_list1.end());
-	std::sort(target_index_list2.begin(), target_index_list2.end());
-	std::sort(control_index_list1.begin(), control_index_list1.end());
-	std::sort(control_index_list2.begin(), control_index_list2.end());
+    std::sort(target_index_list1.begin(), target_index_list1.end());
+    std::sort(target_index_list2.begin(), target_index_list2.end());
+    std::sort(control_index_list1.begin(), control_index_list1.end());
+    std::sort(control_index_list2.begin(), control_index_list2.end());
 
     std::vector<UINT> target_index_merge, control_index_merge, whole_index;
     std::set_union(
