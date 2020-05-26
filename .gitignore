@@ -209,3 +209,10 @@ dkms.conf
 # End of https://www.gitignore.io/api/c
 
 # End of https://www.gitignore.io/api/python,macos
+
+# ccls(C/C++/Objective-C language server)
+**/.ccls
+**/.ccls-cache/*
+
+# symbolic link
+src/Eigen
