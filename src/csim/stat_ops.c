@@ -15,7 +15,8 @@ double state_norm_squared(const CTYPE *state, ITYPE dim) {
 #pragma omp parallel for reduction(+:norm)
 #endif
     for (index = 0; index < dim; ++index){
-        norm += pow(cabs(state[index]), 2);
+        //norm += pow(cabs(state[index]), 2);
+        norm += state[index] * conj(state[index]);
     }
     return norm;
 }
