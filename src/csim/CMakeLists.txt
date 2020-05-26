@@ -28,4 +28,4 @@ if(MSVC)
     set_target_properties ( csim_shared PROPERTIES LINKER_LANGUAGE CXX )
 endif()
 
-set_target_properties(csim_shared PROPERTIES EXCLUDE_FROM_ALL TRUE)
+#set_target_properties(csim_shared PROPERTIES EXCLUDE_FROM_ALL TRUE)

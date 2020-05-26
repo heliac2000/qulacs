@@ -19,4 +19,4 @@ if(USE_GPU)
     target_link_libraries(cppsim_shared gpusim_static)
 endif()
 
-set_target_properties(cppsim_shared PROPERTIES EXCLUDE_FROM_ALL TRUE)
+#set_target_properties(cppsim_shared PROPERTIES EXCLUDE_FROM_ALL TRUE)
