@@ -121,6 +121,8 @@ setup(
     package_dir={pkg_name: 'python/extra'},
     include_package_data=True,
     ext_modules=[CMakeExtension(pkg_name)],
+    #ext_package=pkg_name,
+    #ext_modules=[CMakeExtension('')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     test_suite = 'test',
