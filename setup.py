@@ -107,6 +107,8 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.', '--target', 'python'] + build_args, cwd=self.build_temp)
 
+pkg_name = project_name.lower()
+
 setup(
     name=project_name,
     version=_VERSION,
@@ -115,10 +117,10 @@ setup(
     url='http://www.qulacs.org',
     description='Quantum circuit simulator for research',
     long_description='',
-    packages=['qulacs'],
-    package_dir={'qulacs': 'python/extra'},
+    packages=[pkg_name],
+    package_dir={pkg_name: 'python/extra'},
     include_package_data=True,
-    ext_modules=[CMakeExtension('qulacs')],
+    ext_modules=[CMakeExtension(pkg_name)],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     test_suite = 'test',
