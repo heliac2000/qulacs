@@ -31,16 +31,16 @@ def get_qbit_graph(self) -> Graph:
 add_method(QuantumState, set_qbit_graph)
 add_method(QuantumState, get_qbit_graph)
 
-## QuantumCircuit.test_restriction(QuantumState) -> List[QuantumGateBase]
+## QuantumCircuit.test_restriction(QuantumState) -> List[int]
 ##
-def test_restriction(self, state: QuantumState) -> List[QuantumGateBase]:
+def test_restriction(self, state: QuantumState) -> List[int]:
   graph = state.get_qbit_graph()
   # there is no constraint graph or no gate in circuit
   if len(graph) == 0 or self.get_gate_count() == 0: return []
   # maximum constraint index is greater than number of qubits of this circuit
   if (self.get_qubit_count() - 1) < max(graph.keys()): return []
 
-  non_adaptive = []
+  not_adaptive = []
   connections = state._graph_connections
   for gate_idx in range(self.get_gate_count()):
     gate = self.get_gate(gate_idx)
@@ -49,7 +49,7 @@ def test_restriction(self, state: QuantumState) -> List[QuantumGateBase]:
     if len(control) == 0: continue
     target = gate.get_target_index_list()
     if not all(((x, y) in connections for x in control for y in target)):
-      non_adaptive.append(gate)
-  return non_adaptive
+      not_adaptive.append(gate_idx)
+  return not_adaptive
 
 add_method(QuantumCircuit, test_restriction)
