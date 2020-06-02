@@ -45,9 +45,13 @@ def test_restriction(self, state: QuantumState) -> List[int]:
   for gate_idx in range(self.get_gate_count()):
     gate = self.get_gate(gate_idx)
     control = gate.get_control_index_list()
+    target = gate.get_target_index_list()
+    # SWAP gate(no control qubits and two target qubits)
+    if gate.get_name() == 'SWAP':
+      control.append(target[1])
+      target = target[:1]
     # skip non-controlled gate(one-qubit gate)
     if len(control) == 0: continue
-    target = gate.get_target_index_list()
     if not all(((x, y) in connections for x in control for y in target)):
       not_adaptive.append(gate_idx)
   return not_adaptive
