@@ -2,34 +2,8 @@
 ## 結合制約を検査
 ##
 
-from qulacs import QuantumState, QuantumGateBase, QuantumCircuit
-from typing import Dict, List
-
-## represent constraint graph
-##
-Graph = Dict[int, List[int]]
-
-## utility function
-##
-def add_method(cls, method):
-  setattr(cls, method.__name__, method)
-
-## QuantumState.set_qbit_graph(Dict[int, List[int]]) -> None
-##
-def set_qbit_graph(self, graph: Graph) -> None:
-  self._graph = graph
-  # get all combination for connection constraints
-  self._graph_connections = (
-    sum([[(kq, q) for q in vq] for kq, vq in graph.items()], [])
-  )
-
-## QuantumState.get_qbit_graph(None) -> Dict[int, List[int]]
-##
-def get_qbit_graph(self) -> Graph:
-  return self._graph if hasattr(self, '_graph') else {}
-
-add_method(QuantumState, set_qbit_graph)
-add_method(QuantumState, get_qbit_graph)
+from qulacs import QuantumState, QuantumCircuit, add_method, is_SWAP_gate
+from typing import List
 
 ## QuantumCircuit.test_restriction(QuantumState) -> List[int]
 ##
@@ -47,7 +21,7 @@ def test_restriction(self, state: QuantumState) -> List[int]:
     control = gate.get_control_index_list()
     target = gate.get_target_index_list()
     # SWAP gate(no control qubits and two target qubits)
-    if gate.get_name() == 'SWAP':
+    if is_SWAP_gate(gate):
       control.append(target[1])
       target = target[:1]
     # skip non-controlled gate(one-qubit gate)
