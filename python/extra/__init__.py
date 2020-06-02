@@ -17,7 +17,7 @@ if not __QULACS_SETUP__:
                 get_distribution(__name__).egg_info, 'native_libs.txt')
               ).read().strip()))
 
-  for f in glob(path.join(path.dirname(path.abspath(__file__)), '*.py')):
+  for f in sorted(glob(path.join(path.dirname(path.abspath(__file__)), '*.py'))):
     if f != path.abspath(__file__): # don't load "__init__.py"
       load_source(__name__, f)
 
