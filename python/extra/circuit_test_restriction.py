@@ -2,20 +2,20 @@
 ## 結合制約を検査
 ##
 
-from qulacs import QuantumState, QuantumCircuit, add_method, is_SWAP_gate
+from qulacs import QuantumCircuit, add_method, is_SWAP_gate
 from typing import List
 
-## QuantumCircuit.test_restriction(QuantumState) -> List[int]
+## QuantumCircuit.test_restriction() -> List[int]
 ##
-def test_restriction(self, state: QuantumState) -> List[int]:
-  graph = state.get_qbit_graph()
+def test_restriction(self) -> List[int]:
+  graph = self.get_qbit_graph()
   # there is no constraint graph or no gate in circuit
   if len(graph) == 0 or self.get_gate_count() == 0: return []
   # maximum constraint index is greater than number of qubits of this circuit
   if (self.get_qubit_count() - 1) < max(graph.keys()): return []
 
   not_adaptive = []
-  connections = state._graph_connections
+  connections = self._graph_connections
   for gate_idx in range(self.get_gate_count()):
     gate = self.get_gate(gate_idx)
     control = gate.get_control_index_list()

@@ -8,7 +8,7 @@ from itertools import tee
 from inspect import getmembers, ismethod
 
 # insert swap gates on both sides
-def insert_swap_gate(self, state: QuantumEmptyState) -> QuantumCircuit:
+def insert_swap_gate(self) -> QuantumCircuit:
   # utility function
   def pairwise(iterable: List[int]) -> Iterator[Tuple[int, int]]: 
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
@@ -17,7 +17,7 @@ def insert_swap_gate(self, state: QuantumEmptyState) -> QuantumCircuit:
     return zip(a, b)
 
   # main
-  rc = self.test_restriction(state)
+  rc = self.test_restriction()
   # return copy(deepcopy) when adaptive
   if len(rc) == 0: return self.copy()
 
@@ -35,7 +35,7 @@ def insert_swap_gate(self, state: QuantumEmptyState) -> QuantumCircuit:
       control, target = target_list
     else:
       control, target = control_list[0], target_list[0]
-    path = self._find_shortest_path(state, target, control)
+    path = self._find_shortest_path(target, control)
     if len(path) == 0: # route not found
       nc.add_gate(gate)
       continue
@@ -55,8 +55,8 @@ def insert_swap_gate(self, state: QuantumEmptyState) -> QuantumCircuit:
   return nc
 
 # Djikstra's Shortest Path Algorithm
-def _find_shortest_path(self, state, start, goal):
-  edge = state.get_qbit_graph()
+def _find_shortest_path(self, start, goal):
+  edge = self.get_qbit_graph()
   shortest = {start: (None, 0)}
   visited = set()
   cur = start
