@@ -24,7 +24,7 @@ if not __QULACS_SETUP__:
   def load_source(module, path):
     loader = SourceFileLoader(module, path)
     spec = spec_from_file_location(module, path, loader=loader)
-    _exec(spec, sys_modules[__name__])
+    _exec(spec, sys_modules[module])
 
   # Load qulacs shared library
   load_dynamic(
