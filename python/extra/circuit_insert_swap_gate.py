@@ -2,7 +2,7 @@
 ## 結合制約を満たすための SWAP ゲートを挿入
 ##
 
-from qulacs import add_method, QuantumCircuit
+from qulacs import QuantumCircuit, add_method, is_SWAP_gate
 from typing import List, Iterator, Tuple
 from itertools import tee
 from inspect import getmembers, ismethod
@@ -10,7 +10,7 @@ from inspect import getmembers, ismethod
 # insert swap gates on both sides
 def insert_swap_gate(self) -> QuantumCircuit:
   # utility function
-  def pairwise(iterable: List[int]) -> Iterator[Tuple[int, int]]: 
+  def pairwise(iterable: List[int]) -> Iterator[Tuple[int, int]]:
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
     a, b = tee(iterable)
     next(b, None)
@@ -60,7 +60,7 @@ def _find_shortest_path(self, start, goal):
   shortest = {start: (None, 0)}
   visited = set()
   cur = start
-  
+
   while cur != goal:
     visited.add(cur)
     dest = edge[cur]
@@ -74,14 +74,14 @@ def _find_shortest_path(self, start, goal):
         cur_shortest = shortest[nextq][1]
         if cur_shortest > hop:
           shortest[nextq] = (cur, hop)
-    
+
     next_dest = {
       q: shortest[q] for q in shortest if q not in visited
     }
     if not next_dest:
       return [] # route not found
     cur = min(next_dest, key=lambda k: next_dest[k][1])
-  
+
   path = []
   while cur is not None:
     path.append(cur)
