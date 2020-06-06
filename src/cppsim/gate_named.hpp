@@ -181,8 +181,11 @@ protected:
     ComplexMatrix _matrix_element;
     double _angle;
 
-    QuantumGate_OneQubitRotation(double angle) : _angle(angle) {};
+    QuantumGate_OneQubitRotation(double angle) : _angle(angle), __angle(_angle) {};
 public:
+    // export with read-only
+    const double& __angle;
+
     /**
      * \~japanese-en 量子状態を更新する
      * 
@@ -211,7 +214,9 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override{
-        return new QuantumGate_OneQubitRotation(*this);
+        auto gate = new QuantumGate_OneQubitRotation(*this);
+        gate->_angle = this->_angle;
+        return gate;
     };
     /**
      * \~japanese-en 自身のゲート行列をセットする
@@ -222,5 +227,3 @@ public:
         matrix = this->_matrix_element;
     }
 };
-
-

@@ -26,6 +26,7 @@ extern "C" {
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_matrix.hpp>
 #include <cppsim/gate_merge.hpp>
+#include <cppsim/gate_named.hpp>
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
 #include <cppsim/simulator.hpp>
@@ -300,6 +301,11 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("RX", &gate::RX, pybind11::return_value_policy::take_ownership, "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
     mgate.def("RY", &gate::RY, pybind11::return_value_policy::take_ownership, "Create Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
     mgate.def("RZ", &gate::RZ, pybind11::return_value_policy::take_ownership, "Create Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
+
+    py::class_<QuantumGate_OneQubitRotation, QuantumGateBase>(m, "QuantumGate_OneQubitRotation", py::dynamic_attr())
+		.def("get_angle", [](const QuantumGate_OneQubitRotation& gate) -> double {
+      return gate.__angle;
+    });
 
 	mgate.def("CNOT", [](UINT control_qubit_index, UINT target_qubit_index) {
 		auto ptr = gate::CNOT(control_qubit_index, target_qubit_index);
