@@ -104,13 +104,17 @@ namespace gate{
         ComplexMatrix matrix = get_IBMQ_matrix(M_PI / 2, phi, lambda);
         std::vector<UINT> vec;
         vec.push_back(qubit_index);
-        return new QuantumGateMatrix(vec, matrix);
+        auto gate = new QuantumGateMatrix(vec, matrix);
+        gate->set_name("U2");
+        return gate;
     }
     QuantumGateBase* U3(UINT qubit_index, double theta, double phi, double lambda) {
         ComplexMatrix matrix = get_IBMQ_matrix(theta, phi, lambda);
         std::vector<UINT> vec;
         vec.push_back(qubit_index);
-        return new QuantumGateMatrix(vec, matrix);
+        auto gate = new QuantumGateMatrix(vec, matrix);
+        gate->set_name("U3");
+        return gate;
     }
 
     QuantumGateBase* CNOT(UINT control_qubit_index, UINT target_qubit_index) {
