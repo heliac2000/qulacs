@@ -248,6 +248,9 @@ void QuantumCircuit::add_CNOT_gate(UINT control_index, UINT target_index) {
 void QuantumCircuit::add_CZ_gate(UINT control_index, UINT target_index) {
     this->add_gate(gate::CZ(control_index,target_index));
 }
+void QuantumCircuit::add_CR_gate(UINT control_index, UINT target_index, double angle) {
+    this->add_gate(gate::CR(control_index,target_index,angle));
+}
 void QuantumCircuit::add_SWAP_gate(UINT target_index1, UINT target_index2) {
     this->add_gate(gate::SWAP(target_index1,target_index2));
 }

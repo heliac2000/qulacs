@@ -96,7 +96,9 @@ namespace gate{
         ComplexMatrix matrix = get_IBMQ_matrix(0, 0, lambda);
         std::vector<UINT> vec;
         vec.push_back(qubit_index);
-        return new QuantumGateMatrix(vec, matrix);
+        auto gate = new QuantumGateMatrix(vec, matrix);
+        gate->set_name("U1");
+        return gate;
     }
     QuantumGateBase* U2(UINT qubit_index, double phi, double lambda) {
         ComplexMatrix matrix = get_IBMQ_matrix(M_PI / 2, phi, lambda);
@@ -124,6 +126,13 @@ namespace gate{
 			return NULL;
 		}
 		return new ClsCZGate(control_qubit_index, target_qubit_index);
+    }
+    QuantumGateBase* CR(UINT control_qubit_index, UINT target_qubit_index, double angle) {
+		if (control_qubit_index == target_qubit_index) {
+			std::cerr << "Error: gate::CR(UINT, UINT): control_qubit_index and target_qubit_index has the same value." << std::endl;
+			return NULL;
+		}
+		return new ClsCRGate(control_qubit_index, target_qubit_index, angle);
     }
     QuantumGateBase* SWAP(UINT qubit_index1, UINT qubit_index2) {
 		if (qubit_index1 == qubit_index2) {

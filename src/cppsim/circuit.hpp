@@ -292,6 +292,14 @@ public:
     virtual void add_CZ_gate(UINT control_index, UINT target_index);
 
     /**
+     * \~japanese-en Control-R gateを追加する。
+     * 
+     * @param[in] control_index 作用するcontrol qubitの添え字
+     * @param[in] target_index 作用するtarget qubitの添え字
+     */
+    virtual void add_CR_gate(UINT control_index, UINT target_index, double angle);
+
+    /**
      * \~japanese-en SWAP gateを追加する。
      * 
      * @param[in] target_index1 作用するtarget qubitの添え字

@@ -27,6 +27,7 @@ extern "C" {
 #include <cppsim/gate_matrix.hpp>
 #include <cppsim/gate_merge.hpp>
 #include <cppsim/gate_named.hpp>
+#include <cppsim/gate_named_two.hpp>
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
 #include <cppsim/simulator.hpp>
@@ -302,10 +303,12 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("RY", &gate::RY, pybind11::return_value_policy::take_ownership, "Create Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
     mgate.def("RZ", &gate::RZ, pybind11::return_value_policy::take_ownership, "Create Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
 
-    py::class_<QuantumGate_OneQubitRotation, QuantumGateBase>(m, "QuantumGate_OneQubitRotation", py::dynamic_attr())
-		.def("get_angle", [](const QuantumGate_OneQubitRotation& gate) -> double {
+    py::class_<QuantumGate_OneQubitRotation, QuantumGateBase>(m, "QuantumGate_OneQubitRotation")
+      .def("get_angle", [](const QuantumGate_OneQubitRotation& gate) -> double {
       return gate.__angle;
     });
+    py::class_<ClsCRGate, QuantumGateBase>(m, "ClsCRGate")
+      .def("get_angle", &ClsCRGate::get_angle);
 
 	mgate.def("CNOT", [](UINT control_qubit_index, UINT target_qubit_index) {
 		auto ptr = gate::CNOT(control_qubit_index, target_qubit_index);
@@ -317,6 +320,11 @@ PYBIND11_MODULE(qulacs, m) {
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to CZ.");
 		return ptr;
 	}, pybind11::return_value_policy::take_ownership, "Create CZ gate", py::arg("control"), py::arg("target"));
+    mgate.def("CR", [](UINT control_qubit_index, UINT target_qubit_index, double angle) {
+		auto ptr = gate::CR(control_qubit_index, target_qubit_index, angle);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to CR.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership);
 	mgate.def("SWAP", [](UINT target_index1, UINT target_index2) {
 		auto ptr = gate::SWAP(target_index1, target_index2);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to SWAP.");

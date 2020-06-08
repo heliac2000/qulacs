@@ -28,6 +28,7 @@ namespace gate{
      * Tdag         :   Tdag \<index\>
      * CNOT,CX      :   CNOT \<control\> \<target\>, or CX \<control\> \<target\>
      * CZ           :   CZ \<control\> \<target\>
+     * CR           :   CR \<control\> \<target\> \<angle\>
      * SWAP         :   SWAP \<target1\> \<target2\>
      * U1           :   U1 \<index\> \<angle1\>
      * U2           :   U2 \<index\> \<angle1\> \<angle2\>
@@ -244,6 +245,16 @@ namespace gate{
      * @return 作成されたゲートのインスタンス
      */
     DllExport QuantumGateBase* CZ(UINT control_qubit_index, UINT target_qubit_index);
+
+    /**
+     * \~japanese-en CRゲートを作成する
+     * 
+     * @param[in] control_qubit_index コントロールとなる量子ビットの添え字
+     * @param[in] target_qubit_index ターゲットとなる量子ビットの添え字
+     * @param[in] angle 回転角
+     * @return 作成されたゲートのインスタンス
+     */
+    DllExport QuantumGateBase* CR(UINT control_qubit_index, UINT target_qubit_index, double angle);
 
     /**
      * \~japanese-en SWAPゲートを作成する

@@ -64,6 +64,53 @@ public:
 };
 
 /**
+ * \~japanese-en Control-Rゲート(dummy)
+ */
+class ClsCRGate : public QuantumGate_OneControlOneTarget {
+protected:
+    double _angle;
+
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param control_qubit_index コントロール量子ビットの添え字
+     * @param target_qubit_index ターゲット量子ビットの添え字
+     */
+    ClsCRGate(UINT control_qubit_index, UINT target_qubit_index, double angle) : _angle(angle) {
+        this->_update_func = NULL;
+		this->_update_func_dm = NULL;
+#ifdef _USE_GPU
+		this->_update_func_gpu = NULL;
+#endif
+        this->_name = "CR";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE ));
+        this->_control_qubit_list.push_back(ControlQubitInfo(control_qubit_index, 1 ));
+        this->_gate_property = FLAG_CLIFFORD;
+        this->_matrix_element = ComplexMatrix::Zero(2,2);
+        this->_matrix_element << 1,0,0,-1;
+    }
+    /**
+     * \~japanese-en 自身のディープコピーを生成する
+     * 
+     * @return 自身のディープコピー
+     */
+    virtual QuantumGateBase* copy() const override {
+        auto gate = new ClsCRGate(*this);
+        gate->_angle = this->_angle;
+        return gate;
+    };
+    /**
+     * \~japanese-en 回転角を返す
+     * 
+     * @return 回転角
+     */
+    virtual double get_angle() const {
+      return this->_angle;
+    }
+};
+
+/**
  * \~japanese-en SWAPゲート
  */
 class ClsSWAPGate : public QuantumGate_TwoQubit{
