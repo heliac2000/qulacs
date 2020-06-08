@@ -3,6 +3,7 @@
 ##
 
 from qulacs import QuantumGateBase, QuantumCircuit
+from math import pi
 from typing import Dict, List, Callable
 
 # represent constraint graph
@@ -30,6 +31,30 @@ def get_qbit_graph(self) -> Graph:
 
 add_method(QuantumCircuit, set_qbit_graph)
 add_method(QuantumCircuit, get_qbit_graph)
+
+# constants
+PI, hPI, qPI = pi, pi/2, pi/4
+
+# dictionary class with alias keys
+class AliasDict(dict):
+  def __init__(self, *args, **kwargs):
+    dict.__init__(self, *args, **kwargs)
+    self.aliases = {}
+
+  def __getitem__(self, key):
+    return dict.__getitem__(self, self.aliases.get(key, key))
+
+  def __setitem__(self, key, value):
+    return dict.__setitem__(self, self.aliases.get(key, key), value)
+
+  def __contains__(self, key):
+    return (super().__contains__(key)) or (key in self.aliases)
+
+  def keys(self):
+    return list(super().keys()) + list(self.aliases)
+
+  def add_alias(self, key, alias):
+    self.aliases[alias] = key
 
 # QuantumState class without state vector
 #class QuantumEmptyState(QuantumStateBase):
