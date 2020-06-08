@@ -271,6 +271,10 @@ std::string QuantumGateMatrix::to_string() const {
     return os.str();
 }
 
+void QuantumGateMatrix::set_name(std::string name) {
+    this->_name = name;
+}
+
 std::ostream& operator<<(std::ostream& os, const QuantumGateMatrix& gate) {
     os << gate.to_string();
     return os;

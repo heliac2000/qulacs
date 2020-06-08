@@ -115,6 +115,13 @@ public:
     virtual std::string to_string() const override;
 
     /**
+     * \~japanese-en 量子ゲートの名前をセットする。
+     * 
+     * @param name ゲート名
+     */
+    virtual void set_name (std::string name);
+
+    /**
      * \~japanese-en ゲートの情報を文字列で出力する
      * 
      * @param os 出力するストリーム
