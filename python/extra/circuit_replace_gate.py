@@ -62,7 +62,8 @@ _compound_gate_single_qubit = {
   # Z gate
   'Z': [('Rx', -hPI), ('Ry', PI), ('Rx', hPI)],
   # Phase gate
-  'U1': [('Rx', -hPI), 'Ry', ('Rx', hPI)],
+  'U1': [[('Rx', -hPI), 'Ry', ('Rx', hPI),
+          lambda c,t,a: (c,t,(a[2:] if a else a))]],
   # T gate
   'T': [('Rx', -hPI), ('Ry', hPI), ('Rx', hPI)],
   # S gate
@@ -85,10 +86,10 @@ _compound_gate_two_qubits = {
   'CZ': [GATE_H, GATE_CNOT, GATE_H],
   # Controlled phase gate
   'CR': [
-    [GATE_RZ, lambda c, t, a: (c, t, [a[0]/2] if a else a)],  # target
-    [GATE_RZ, lambda c, t, a: (t, c, [a[0]/2] if a else a)],  # control
+    [GATE_RZ, lambda c,t,a: (c,t,([a[0]/2] if a else a))],  # target
+    [GATE_RZ, lambda c,t,a: (t,c,([a[0]/2] if a else a))],  # control
     GATE_CNOT,
-    [GATE_RZ, lambda c, t, a: (c, t, [-a[0]/2] if a else a)], # target
+    [GATE_RZ, lambda c,t,a: (c,t,([-a[0]/2] if a else a))], # target
     GATE_CNOT
   ],
 }
@@ -131,7 +132,10 @@ def replace_to_primitive_gates(self: QuantumCircuit) -> QuantumCircuit:
 
     control = gate.get_control_index_list()
     target = gate.get_target_index_list()
-    args = [gate.get_angle()] if _get_method(gate, 'get_angle') else []
+    args = []
+    if _get_method(gate, 'get_parameter'):
+      args = gate.get_parameter()
+      args = args if isinstance(args, list) else [args]
     for g in _compound_gate[name]:
       _add_gate(g, control, target, args)
 

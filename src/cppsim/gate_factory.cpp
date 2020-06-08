@@ -98,6 +98,7 @@ namespace gate{
         vec.push_back(qubit_index);
         auto gate = new QuantumGateMatrix(vec, matrix);
         gate->set_name("U1");
+        gate->set_parameter(std::array<double, 3> {0, 0, lambda});
         return gate;
     }
     QuantumGateBase* U2(UINT qubit_index, double phi, double lambda) {
@@ -106,6 +107,7 @@ namespace gate{
         vec.push_back(qubit_index);
         auto gate = new QuantumGateMatrix(vec, matrix);
         gate->set_name("U2");
+        gate->set_parameter(std::array<double, 3> {M_PI / 2, phi, lambda});
         return gate;
     }
     QuantumGateBase* U3(UINT qubit_index, double theta, double phi, double lambda) {
@@ -114,6 +116,7 @@ namespace gate{
         vec.push_back(qubit_index);
         auto gate = new QuantumGateMatrix(vec, matrix);
         gate->set_name("U3");
+        gate->set_parameter(std::array<double, 3> {theta, phi, lambda});
         return gate;
     }
 

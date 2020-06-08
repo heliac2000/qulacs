@@ -42,7 +42,7 @@ _qasm_trans_tbl = {
   # Swap two qubits
   'SWAP': ['swap', (0, 2, 0)],
   # Phase gate
-  'U1': ['u1', (0, 1, 1)],
+  'U1': ['u1', (0, 1, -1)],
   # T gate
   'T': ['t', (0, 1, 0)],
   # S gate
@@ -67,8 +67,12 @@ def to_qasm(self: QuantumCircuit) -> str:
     name, (nc, nt, nargs) = _qasm_trans_tbl[name][0:2] 
     control = gate.get_control_index_list()
     target = gate.get_target_index_list()
-    args = [gate.get_angle()] if hasattr(gate, 'get_angle') else []
-    a = '(' + str(args[:nargs][0]) + ')' if nargs > 0 else ''
+    args = []
+    if _get_method(gate, 'get_parameter'):
+      args = gate.get_parameter()
+      args = args if isinstance(args, list) else [args]
+    a = ('' if nargs == 0 else
+         f'({args[:nargs][0] if nargs > 0 else args[nargs:][0]})')
     c = ','.join([f'q[{c}]' for c in control[:nc]])
     t = ','.join([f'q[{t}]' for t in target[:nt]])
     code.append(f'{name}{a} {c+"," if c else c}{t};')

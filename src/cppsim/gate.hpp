@@ -52,6 +52,7 @@
 
 #include "type.hpp"
 #include "qubit_info.hpp"
+#include <array>
 #include <vector>
 #include <iostream>
 #include <ostream>

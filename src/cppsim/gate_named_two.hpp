@@ -105,7 +105,7 @@ public:
      * 
      * @return 回転角
      */
-    virtual double get_angle() const {
+    virtual double get_parameter() const {
       return this->_angle;
     }
 };

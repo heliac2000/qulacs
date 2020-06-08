@@ -275,6 +275,14 @@ void QuantumGateMatrix::set_name(std::string name) {
     this->_name = name;
 }
 
+void QuantumGateMatrix::set_parameter(std::array<double, 3> param) {
+    this->parameter = param;
+}
+
+std::array<double, 3> QuantumGateMatrix::get_parameter() const {
+    return this->parameter;
+}
+
 std::ostream& operator<<(std::ostream& os, const QuantumGateMatrix& gate) {
     os << gate.to_string();
     return os;

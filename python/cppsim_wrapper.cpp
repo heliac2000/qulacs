@@ -304,11 +304,11 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("RZ", &gate::RZ, pybind11::return_value_policy::take_ownership, "Create Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
 
     py::class_<QuantumGate_OneQubitRotation, QuantumGateBase>(m, "QuantumGate_OneQubitRotation")
-      .def("get_angle", [](const QuantumGate_OneQubitRotation& gate) -> double {
+      .def("get_parameter", [](const QuantumGate_OneQubitRotation& gate) -> double {
       return gate.__angle;
     });
     py::class_<ClsCRGate, QuantumGateBase>(m, "ClsCRGate")
-      .def("get_angle", &ClsCRGate::get_angle);
+      .def("get_parameter", &ClsCRGate::get_parameter);
 
 	mgate.def("CNOT", [](UINT control_qubit_index, UINT target_qubit_index) {
 		auto ptr = gate::CNOT(control_qubit_index, target_qubit_index);

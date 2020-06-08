@@ -9,6 +9,7 @@
 class DllExport QuantumGateMatrix : public QuantumGateBase{
 private:
     ComplexMatrix _matrix_element;     /**< list of elements of unitary matrix as 1D array with length dim*dim (only for dense gate))*/
+    std::array<double,3> parameter; /* theta, phi, lambda */
 public:
     /**
      * \~japanese-en コンストラクタ
@@ -95,7 +96,9 @@ public:
      * @return コピーされたゲートのインスタンス
      */
     virtual QuantumGateBase* copy() const override{
-        return new QuantumGateMatrix(*this);
+        auto gate = new QuantumGateMatrix(*this);
+        gate->set_parameter(this->get_parameter());
+        return gate;
     };
 
     /**
@@ -115,11 +118,24 @@ public:
     virtual std::string to_string() const override;
 
     /**
-     * \~japanese-en 量子ゲートの名前をセットする。
+     * \~japanese-en 量子ゲートの名前をセットする
      * 
      * @param name ゲート名
      */
-    virtual void set_name (std::string name);
+    virtual void set_name(std::string name);
+
+    /**
+     * \~japanese-en 量子ゲートのパラメーターをセットする
+     * 
+     * @param param パラメーター
+     */
+    virtual void set_parameter(std::array<double, 3> param);
+
+    /**
+     * \~japanese-en 量子ゲートのパラメーターを取得する
+     * 
+     */
+    virtual std::array<double, 3> get_parameter() const;
 
     /**
      * \~japanese-en ゲートの情報を文字列で出力する
