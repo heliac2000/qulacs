@@ -20,8 +20,8 @@ _primitive_gate = AliasDict({
   'SWAP': ['SWAP', (0, 2, 0)],
   # Initialize in state |00..00>
   'INIT': ['', ()],
-  # Qubit read out(Measurement)
-  'MEAS': ['', ()],
+  # Qubit read out
+  'Measurement': ['', (0, 1, 0)],
   # Do nothing(Identity gate)
   'NOP' : ['', ()],
   # 量子ドット間電子移動(CCD操作)

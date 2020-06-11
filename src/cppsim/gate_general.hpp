@@ -414,6 +414,7 @@ protected:
     Random random;
     std::vector<QuantumGateBase*> _gate_list;
     UINT _classical_register_address;
+    std::vector<UINT> parameter;
 
 public:
     QuantumGate_Instrument(std::vector<QuantumGateBase*> gate_list, UINT classical_register_address) {
@@ -421,6 +422,18 @@ public:
 		for (auto gate : gate_list) {
 			_gate_list.push_back(gate->copy());
 		}
+    set_parameter(std::vector<UINT>{classical_register_address});
+	};
+    QuantumGate_Instrument(std::vector<QuantumGateBase*> gate_list, std::vector<UINT> target_qubit_index_list, UINT classical_register_address) {
+		_target_qubit_list.clear();
+		for(auto idx : target_qubit_index_list){
+			_target_qubit_list.push_back(TargetQubitInfo(idx, 0));
+		}
+		_classical_register_address = classical_register_address;
+		for (auto gate : gate_list) {
+			_gate_list.push_back(gate->copy());
+		}
+    set_parameter(std::vector<UINT>{classical_register_address});
 	};
 	virtual ~QuantumGate_Instrument() {
 		for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -434,7 +447,7 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
-        double r = random.uniform();
+				double r = random.uniform();
 
         double sum = 0.;
         double org_norm = state->get_squared_norm();
@@ -473,7 +486,10 @@ public:
         for (auto item : _gate_list) {
             new_gate_list.push_back(item->copy());
         }
-        return new QuantumGate_Instrument(new_gate_list, _classical_register_address);
+        auto gate = new QuantumGate_Instrument(new_gate_list, get_target_index_list(), _classical_register_address);
+        gate->_name = _name;
+        gate->set_parameter(parameter);
+        return gate;
     };
     /**
      * \~japanese-en 自身のゲート行列をセットする
@@ -484,6 +500,31 @@ public:
         std::cerr << "* Warning : Gate-matrix of Instrument cannot be obtained. Identity matrix is returned." << std::endl;
         matrix = Eigen::MatrixXcd::Ones(1, 1);
     }
+    /**
+     * \~japanese-en 量子ゲートの名前をセットする
+     * 
+     * @param name ゲート名
+     */
+    virtual void set_name(std::string name){
+        this->_name = name;
+    }
+    /**
+     * \~japanese-en 量子ゲートのパラメーターをセットする
+     * 
+     * @param param パラメーター
+     */
+		virtual void set_parameter(std::vector<UINT> param) {
+			parameter.clear();
+			std::copy(param.begin(), param.end(), std::back_inserter(parameter));
+		}
+
+    /**
+     * \~japanese-en 量子ゲートのパラメーターを取得する
+     * 
+     */
+		virtual std::vector<UINT> get_parameter() const {
+			return this->parameter;
+		}
 };
 
 

@@ -10,12 +10,18 @@
 ## multiple-qubit gates.
 ##
 
-from qulacs import QuantumCircuit, add_method, is_SWAP_gate, PI
-from qiskit import QuantumCircuit as qiskit_qc
+from qulacs import QuantumCircuit, add_method
 import re
 from sys import stderr
 from typing import Union
-from inspect import _signature_get_user_defined_method
+from inspect import _signature_get_user_defined_method as _get_method
+
+# classical register
+def _cr_func(name: str, control: str, target: str, args: str) -> str:
+  ret = f'{name} {target} -> c{_cr_func.nth}[0];'
+  _cr_func.creg.append(f'creg c{_cr_func.nth}[1];')
+  _cr_func.nth += 1
+  return ret
 
 # transition table
 _qasm_trans_tbl = {
@@ -50,11 +56,17 @@ _qasm_trans_tbl = {
   # Inverse T gate
   'Tdag': ['tdg', (0, 1, 0)],
   # Inverse S gate
-  'Sdag': ['sdg', (0, 1, 0)]
+  'Sdag': ['sdg', (0, 1, 0)],
+  # Identity
+  'I': ['id', (0, 1, 0)],
+  # Qubit read out
+  'Measurement': ['measure', (0, 1, 1), _cr_func]
 }
 
 # QASM format
 def to_qasm(self: QuantumCircuit) -> str:
+  # classical register
+  _cr_func.nth = 0; _cr_func.creg = []
   code = [
     # header and register
     f'OPENQASM 2.0;\ninclude "qelib1.inc";\nqreg q[{self.get_qubit_count()}];'
@@ -64,7 +76,10 @@ def to_qasm(self: QuantumCircuit) -> str:
     name = gate.get_name()
     if name not in _qasm_trans_tbl:
       continue
-    name, (nc, nt, nargs) = _qasm_trans_tbl[name][0:2] 
+    # 
+    g = _qasm_trans_tbl[name]
+    f = g[-1] if len(g) > 2 and callable(g[-1]) else None
+    name, (nc, nt, nargs) = g[0:2] 
     control = gate.get_control_index_list()
     target = gate.get_target_index_list()
     args = []
@@ -72,10 +87,16 @@ def to_qasm(self: QuantumCircuit) -> str:
       args = gate.get_parameter()
       args = args if isinstance(args, list) else [args]
     a = ('' if nargs == 0 else
-         f'({args[:nargs][0] if nargs > 0 else args[nargs:][0]})')
+         f'{args[:nargs][0] if nargs > 0 else args[nargs:][0]}')
     c = ','.join([f'q[{c}]' for c in control[:nc]])
     t = ','.join([f'q[{t}]' for t in target[:nt]])
-    code.append(f'{name}{a} {c+"," if c else c}{t};')
+    code.append(
+      f(name, c, t, a) if f else f'{name}{(a)} {c+"," if c else c}{t};'
+    )
+
+  # declare classical register
+  if _cr_func.creg:
+    code[1:1] = _cr_func.creg
 
   return '\n'.join(code)
 
@@ -83,6 +104,7 @@ add_method(QuantumCircuit, to_qasm)
 
 # draw circuit on jupyter notebook
 def figure(self: QuantumCircuit):
+  from qiskit import QuantumCircuit as qiskit_qc
   return qiskit_qc.from_qasm_str(self.to_qasm())
 
 add_method(QuantumCircuit, figure)
@@ -137,8 +159,7 @@ def load_qasm(qasm_file: str) -> Union[QuantumCircuit, None]:
     operator, operand = splited[0].replace('-', ''), ''.join(splited[1:])
     if operator == 'nop': continue
     # get method to add a gate
-    add_gate_method = _signature_get_user_defined_method(
-      circuit, f'add_{operator.upper()}_gate')
+    add_gate_method = _get_method(circuit, f'add_{operator.upper()}_gate')
     if add_gate_method is None:
       print(f'unknown operator: "{operator}" in "{c}"', file=stderr)
       return None
@@ -162,8 +183,56 @@ def load_qasm(qasm_file: str) -> Union[QuantumCircuit, None]:
 QuantumCircuit.load_qasm = load_qasm
 
 if __name__ == '__main__':
-  circuit = QuantumCircuit(3)
-  circuit.add_CR_gate(0, 1, PI)
-  print(circuit.to_qasm())
-  nc = circuit.replace_to_primitive_gates()
-  ##nc.figure()
+  from qulacs import QuantumState
+  from qulacs.gate import Measurement, Identity, Adaptive, X, Z
+
+  from qiskit.visualization.utils import _validate_input_state
+  from qiskit.quantum_info.operators.pauli import Pauli
+  import numpy as np
+
+  def bloch_multivector(rho):
+    rho = _validate_input_state(rho)
+    num = int(np.log2(len(rho)))
+    bloch_state = []
+    for i in range(num):
+      pauli_singles = [
+        Pauli.pauli_single(num, i, 'X'),
+        Pauli.pauli_single(num, i, 'Y'),
+        Pauli.pauli_single(num, i, 'Z')
+      ]
+      bloch_state.append(list(
+        map(lambda x: np.real(np.trace(np.dot(x.to_matrix(), rho))),
+            pauli_singles)))
+
+    return bloch_state
+
+  n = 3
+  circuit = QuantumCircuit(n)
+
+  circuit.add_H_gate(1);
+  circuit.add_CNOT_gate(1, 2);
+  circuit.add_CNOT_gate(0, 1);
+  circuit.add_H_gate(0);
+  #circuit.add_gate(Identity(1));
+  circuit.add_gate(Measurement(0, 0))
+  circuit.add_gate(Measurement(1, 1))
+  #circuit.add_gate(Adaptive(X(2), lambda cr: cr[0] == 1))
+  #circuit.add_gate(Adaptive(Z(2), lambda cr: cr[0] == 1))
+  #circuit.add_CNOT_gate(1, 2);
+  #circuit.add_CZ_gate(0, 2);
+
+  # 
+  state = QuantumState(n)
+
+  # |001> -> |100> + |101> + |110> + |111>
+  state.set_computational_basis(0b110)
+  #state.set_Haar_random_state(1)
+  stv0 = state.get_vector()
+  circuit.update_quantum_state(state)
+  stv1 = state.get_vector()
+
+  print(stv0)
+  print(stv1)
+
+  print(bloch_multivector(stv0))
+  print(bloch_multivector(stv1))

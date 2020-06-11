@@ -301,8 +301,8 @@ namespace gate{
 		ComplexMatrix damping_matrix_0(2, 2), damping_matrix_1(2,2);
 		damping_matrix_0 << 1, 0, 0, sqrt(1 - prob);
 		damping_matrix_1 << 0, sqrt(prob), 0, 0;
-		auto gate0 = DenseMatrix({ target_index }, damping_matrix_0);
-		auto gate1 = DenseMatrix({ target_index }, damping_matrix_1);
+		auto gate0 = DenseMatrix(std::vector<UINT>{ target_index }, damping_matrix_0);
+		auto gate1 = DenseMatrix(std::vector<UINT>{ target_index }, damping_matrix_1);
 		auto new_gate = new QuantumGate_CPTP({ gate0, gate1 });
 		delete gate0;
 		delete gate1;
@@ -311,9 +311,11 @@ namespace gate{
 	QuantumGateBase* Measurement(UINT target_index, UINT classical_register_address) {
 		auto gate0 = P0(target_index);
 		auto gate1 = P1(target_index);
-        auto new_gate = new QuantumGate_Instrument({ gate0, gate1},classical_register_address);
+		auto new_gate = new QuantumGate_Instrument(
+			{gate0, gate1}, std::vector<UINT>{target_index}, classical_register_address);
 		delete gate0;
 		delete gate1;
+    new_gate->set_name("Measurement");
 		return new_gate;
     }
 

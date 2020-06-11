@@ -309,6 +309,8 @@ PYBIND11_MODULE(qulacs, m) {
     });
     py::class_<ClsCRGate, QuantumGateBase>(m, "ClsCRGate")
       .def("get_parameter", &ClsCRGate::get_parameter);
+    py::class_<QuantumGate_Instrument, QuantumGateBase>(m, "QuantumGate_Instrument")
+      .def("get_parameter", &QuantumGate_Instrument::get_parameter);
 
 	mgate.def("CNOT", [](UINT control_qubit_index, UINT target_qubit_index) {
 		auto ptr = gate::CNOT(control_qubit_index, target_qubit_index);
