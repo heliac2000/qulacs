@@ -435,7 +435,7 @@ public:
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
-    virtual void load(const QuantumStateBase* _state) {
+    virtual void load(const QuantumStateBase* _state) override {
         if (_state->qubit_count != this->qubit_count) {
             std::cerr << "Error: QuantumStateCpu::load(const QuantumStateBase*): invalid qubit count" << std::endl;
             return;
@@ -454,7 +454,7 @@ public:
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
-    virtual void load(const std::vector<CPPCTYPE>& _state) {
+    virtual void load(const std::vector<CPPCTYPE>& _state) override {
         if (_state.size() != _dim) {
             std::cerr << "Error: QuantumStateCpu::load(vector<Complex>&): invalid length of state" << std::endl;
             return;
@@ -465,7 +465,7 @@ public:
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
-    virtual void load(const CPPCTYPE* _state) {
+    virtual void load(const CPPCTYPE* _state) override {
         memcpy(this->data_cpp(), _state, (size_t)(sizeof(CPPCTYPE)*_dim));
     }
     
