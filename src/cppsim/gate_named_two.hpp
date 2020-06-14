@@ -148,7 +148,7 @@ public:
 		 * @param target_qubit_index2 もう一つのターゲット量子ビットの添え字
 		 */
 		ClsSeparator(UINT target_qubit_index1, UINT target_qubit_index2) {
-			this->_update_func = 0;
+			this->_update_func = [](UINT, UINT, CTYPE *, ITYPE){};
 			this->_name = "Separator";
 			this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index1, 0 ));
 			this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index2, 0 ));
