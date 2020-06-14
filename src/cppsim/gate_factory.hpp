@@ -30,6 +30,7 @@ namespace gate{
      * CZ           :   CZ \<control\> \<target\>
      * CR           :   CR \<control\> \<target\> \<angle\>
      * SWAP         :   SWAP \<target1\> \<target2\>
+     * Separator    :   Separator \<target1\> \<target2\>
      * U1           :   U1 \<index\> \<angle1\>
      * U2           :   U2 \<index\> \<angle1\> \<angle2\>
      * U3           :   U3 \<index\> \<angle1\> \<angle2\> \<angle3\>
@@ -264,6 +265,15 @@ namespace gate{
      * @return 作成されたゲートのインスタンス
      */
     DllExport QuantumGateBase* SWAP(UINT qubit_index1, UINT qubit_index2);
+
+    /**
+     * \~japanese-en セパレータを作成する
+     * 
+     * @param[in] qubit_index1 ターゲットとなる量子ビットの添え字
+     * @param[in] qubit_index2 ターゲットとなる量子ビットの添え字
+     * @return 作成されたセパレータのインスタンス
+     */
+    DllExport QuantumGateBase* Separator(UINT qubit_index1, UINT qubit_index2);
 
     /**
      * \f$n\f$-qubit パウリ演算子のゲートを作成する

@@ -135,3 +135,22 @@ public:
         this->_matrix_element << 1,0,0,0 , 0,0,1,0 , 0,1,0,0 , 0,0,0,1;
     }
 };
+
+/**
+ * \~japanese-en Separator(*NOT* a gate)
+ */
+class ClsSeparator : public QuantumGate_TwoQubit{
+public:
+		/**
+		 * \~japanese-en コンストラクタ
+		 * 
+		 * @param target_qubit_index1 ターゲット量子ビットの添え字
+		 * @param target_qubit_index2 もう一つのターゲット量子ビットの添え字
+		 */
+		ClsSeparator(UINT target_qubit_index1, UINT target_qubit_index2) {
+			this->_update_func = 0;
+			this->_name = "Separator";
+			this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index1, 0 ));
+			this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index2, 0 ));
+		}
+};

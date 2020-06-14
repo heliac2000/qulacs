@@ -10,15 +10,15 @@
 ## multiple-qubit gates.
 ##
 
-from qulacs import QuantumCircuit, add_method
+from qulacs import QuantumCircuit, QuantumGateBase, add_method
 import re
 from sys import stderr
-from typing import Union
+from typing import Union, List, Tuple
 from inspect import _signature_get_user_defined_method as _get_method
 
 # classical register
 def _cr_func(name: str, control: str, target: str, args: str) -> str:
-  ret = f'{name} {target} -> c{_cr_func.nth}[0];'
+  ret = f'{name} q{target} -> c{_cr_func.nth}[0];'
   _cr_func.creg.append(f'creg c{_cr_func.nth}[1];')
   _cr_func.nth += 1
   return ret
@@ -60,7 +60,12 @@ _qasm_trans_tbl = {
   # Identity
   'I': ['id', (0, 1, 0)],
   # Qubit read out
-  'Measurement': ['measure', (0, 1, 1), _cr_func]
+  'Measurement': ['measure', (0, 1, 1), _cr_func],
+  # Barrier
+  'Separator': [
+    'barrier', (0, 2, 0),
+    lambda n, c, t, a: f'{n} {",".join([f"q[{i}]" for i in range(t[0], t[1]+1)])};'
+  ]
 }
 
 # QASM format
@@ -88,8 +93,10 @@ def to_qasm(self: QuantumCircuit) -> str:
       args = args if isinstance(args, list) else [args]
     a = ('' if nargs == 0 else
          f'{args[:nargs][0] if nargs > 0 else args[nargs:][0]}')
-    c = ','.join([f'q[{c}]' for c in control[:nc]])
-    t = ','.join([f'q[{t}]' for t in target[:nt]])
+    c, t = control[:nc], target[:nt]
+    if not f:
+      c = ','.join([f'q[{ic}]' for ic in c])
+      t = ','.join([f'q[{it}]' for it in t])
     code.append(
       f(name, c, t, a) if f else f'{name}{(a)} {c+"," if c else c}{t};'
     )
@@ -196,9 +203,7 @@ if __name__ == '__main__':
     bloch_state = []
     for i in range(num):
       pauli_singles = [
-        Pauli.pauli_single(num, i, 'X'),
-        Pauli.pauli_single(num, i, 'Y'),
-        Pauli.pauli_single(num, i, 'Z')
+        Pauli.pauli_single(num, i, p) for p in ('X', 'Y', 'Z')
       ]
       bloch_state.append(list(
         map(lambda x: np.real(np.trace(np.dot(x.to_matrix(), rho))),
@@ -206,33 +211,37 @@ if __name__ == '__main__':
 
     return bloch_state
 
+  # construct circuit
   n = 3
   circuit = QuantumCircuit(n)
-
   circuit.add_H_gate(1);
   circuit.add_CNOT_gate(1, 2);
   circuit.add_CNOT_gate(0, 1);
   circuit.add_H_gate(0);
-  #circuit.add_gate(Identity(1));
+  circuit.add_Separator(0, 2);
   circuit.add_gate(Measurement(0, 0))
   circuit.add_gate(Measurement(1, 1))
-  #circuit.add_gate(Adaptive(X(2), lambda cr: cr[0] == 1))
-  #circuit.add_gate(Adaptive(Z(2), lambda cr: cr[0] == 1))
-  #circuit.add_CNOT_gate(1, 2);
-  #circuit.add_CZ_gate(0, 2);
+  circuit.add_gate(Adaptive(X(2), lambda cr: cr[0] == 1))
+  circuit.add_gate(Adaptive(Z(2), lambda cr: cr[0] == 1))
+  circuit.add_CNOT_gate(1, 2);
+  circuit.add_CZ_gate(0, 2);
 
+  print(circuit.to_qasm())
+
+  # initialize qubit0
+  # state = QuantumState(n)
+  # psi = np.random.random(2) + np.random.random(2) * 1j
+  # psi = np.append(psi, [0]*(2**n - 2))
+  # state.load(psi)
+  # state.normalize(state.get_squared_norm())
+  # stv0 = state.get_vector()
   # 
-  state = QuantumState(n)
-
-  # |001> -> |100> + |101> + |110> + |111>
-  state.set_computational_basis(0b110)
-  #state.set_Haar_random_state(1)
-  stv0 = state.get_vector()
-  circuit.update_quantum_state(state)
-  stv1 = state.get_vector()
-
-  print(stv0)
-  print(stv1)
-
-  print(bloch_multivector(stv0))
-  print(bloch_multivector(stv1))
+  # # update status
+  # circuit.update_quantum_state(state)
+  # 
+  # # result
+  # stv1 = state.get_vector()
+  # print(stv0)
+  # print(stv1)
+  # print(bloch_multivector(stv0)[0])
+  # print(bloch_multivector(stv1)[-1])

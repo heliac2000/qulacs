@@ -518,6 +518,53 @@ PYBIND11_MODULE(qulacs, m) {
         .def("add_observable_rotation_gate", &QuantumCircuit::add_observable_rotation_gate, "Add observable rotation gate", py::arg("observable"), py::arg("angle"), py::arg("repeat"))
 			
 		.def("__repr__", [](const QuantumCircuit &p) {return p.to_string(); });
+        }, pybind11::return_value_policy::take_ownership)
+        .def("get_gate_count", [](const QuantumCircuit& circuit) -> unsigned int {return (unsigned int)circuit.gate_list.size(); })
+		.def("get_qubit_count", [](const QuantumCircuit& circuit) -> unsigned int {return circuit.qubit_count;})
+
+        .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*))&QuantumCircuit::update_quantum_state)
+        .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*, unsigned int, unsigned int))&QuantumCircuit::update_quantum_state)
+        .def("calculate_depth", &QuantumCircuit::calculate_depth)
+        .def("to_string", &QuantumCircuit::to_string)
+
+        .def("add_X_gate", &QuantumCircuit::add_X_gate)
+        .def("add_Y_gate", &QuantumCircuit::add_Y_gate)
+        .def("add_Z_gate", &QuantumCircuit::add_Z_gate)
+        .def("add_H_gate", &QuantumCircuit::add_H_gate)
+        .def("add_S_gate", &QuantumCircuit::add_S_gate)
+        .def("add_Sdag_gate", &QuantumCircuit::add_Sdag_gate)
+        .def("add_T_gate", &QuantumCircuit::add_T_gate)
+        .def("add_Tdag_gate", &QuantumCircuit::add_Tdag_gate)
+        .def("add_sqrtX_gate", &QuantumCircuit::add_sqrtX_gate)
+        .def("add_sqrtXdag_gate", &QuantumCircuit::add_sqrtXdag_gate)
+        .def("add_sqrtY_gate", &QuantumCircuit::add_sqrtY_gate)
+        .def("add_sqrtYdag_gate", &QuantumCircuit::add_sqrtYdag_gate)
+        .def("add_P0_gate", &QuantumCircuit::add_P0_gate)
+        .def("add_P1_gate", &QuantumCircuit::add_P1_gate)
+
+        .def("add_CNOT_gate", &QuantumCircuit::add_CNOT_gate)
+        .def("add_CZ_gate", &QuantumCircuit::add_CZ_gate)
+        .def("add_CR_gate", &QuantumCircuit::add_CR_gate)
+        .def("add_SWAP_gate", &QuantumCircuit::add_SWAP_gate)
+        .def("add_Separator", &QuantumCircuit::add_Separator)
+
+        .def("add_RX_gate", &QuantumCircuit::add_RX_gate)
+        .def("add_RY_gate", &QuantumCircuit::add_RY_gate)
+        .def("add_RZ_gate", &QuantumCircuit::add_RZ_gate)
+        .def("add_U1_gate", &QuantumCircuit::add_U1_gate)
+        .def("add_U2_gate", &QuantumCircuit::add_U2_gate)
+        .def("add_U3_gate", &QuantumCircuit::add_U3_gate)
+
+        .def("add_multi_Pauli_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, std::vector<unsigned int>))&QuantumCircuit::add_multi_Pauli_gate)
+        .def("add_multi_Pauli_gate", (void (QuantumCircuit::*)(const PauliOperator&)) &QuantumCircuit::add_multi_Pauli_gate)
+        .def("add_multi_Pauli_rotation_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, std::vector<unsigned int>, double))&QuantumCircuit::add_multi_Pauli_rotation_gate)
+        .def("add_multi_Pauli_rotation_gate", (void (QuantumCircuit::*)(const PauliOperator&))&QuantumCircuit::add_multi_Pauli_rotation_gate)
+        .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(unsigned int, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate)
+        .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate)
+        .def("add_random_unitary_gate", &QuantumCircuit::add_random_unitary_gate)
+        .def("add_diagonal_observable_rotation_gate", &QuantumCircuit::add_diagonal_observable_rotation_gate)
+        .def("add_observable_rotation_gate", &QuantumCircuit::add_observable_rotation_gate)
+        .def("__repr__", [](const QuantumCircuit &p) {return p.to_string(); });
     ;
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(m, "ParametricQuantumCircuit")

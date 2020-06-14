@@ -254,6 +254,9 @@ void QuantumCircuit::add_CR_gate(UINT control_index, UINT target_index, double a
 void QuantumCircuit::add_SWAP_gate(UINT target_index1, UINT target_index2) {
     this->add_gate(gate::SWAP(target_index1,target_index2));
 }
+void QuantumCircuit::add_Separator(UINT target_index1, UINT target_index2) {
+    this->add_gate(gate::Separator(target_index1,target_index2));
+}
 void QuantumCircuit::add_RX_gate(UINT target_index, double angle) {
     this->add_gate(gate::RX(target_index,angle));
 }

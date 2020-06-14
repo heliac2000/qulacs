@@ -148,6 +148,12 @@ namespace gate{
 		}
 		return new ClsSWAPGate(qubit_index1, qubit_index2);
     }
+	QuantumGateBase* Separator(UINT qubit_index1, UINT qubit_index2) {
+		if (qubit_index1 > qubit_index2) {
+			std::swap(qubit_index1, qubit_index2);
+		}
+		return new ClsSeparator(qubit_index1, qubit_index2);
+	}
 
     QuantumGateBase* Pauli(std::vector<UINT> target, std::vector<UINT> pauli_id) {
 		if (!check_is_unique_index_list(target)) {
