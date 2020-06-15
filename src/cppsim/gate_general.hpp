@@ -539,6 +539,7 @@ public:
     QuantumGate_Adaptive(QuantumGateBase* gate, std::function<bool(const std::vector<UINT>&)> func) {
         _gate = gate->copy();
         _func = func;
+        _name = "Adaptive";
     };
 	virtual ~QuantumGate_Adaptive() {
 		delete _gate;
@@ -561,7 +562,9 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        return new QuantumGate_Adaptive(_gate->copy(), _func);
+			auto gate = new QuantumGate_Adaptive(_gate->copy(), _func);
+			gate->_name = "Adaptive";
+			return gate;
     };
     /**
      * \~japanese-en 自身のゲート行列をセットする
@@ -572,5 +575,13 @@ public:
         std::cerr << "* Warning : Gate-matrix of Adaptive-gate cannot be obtained. Identity matrix is returned." << std::endl;
         matrix = Eigen::MatrixXcd::Ones(1, 1);
     }
+    /**
+     * \~japanese-en 作用させるゲートを返す
+     *
+     * @return 作用させるゲート
+     */
+    virtual QuantumGateBase* get_parameter() const {
+			return _gate->copy();
+    };
 };
 

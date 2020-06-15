@@ -11,17 +11,67 @@
 ##
 
 from qulacs import QuantumCircuit, QuantumGateBase, add_method
+import ast
+import os
 import re
 from sys import stderr
 from typing import Union, List, Tuple
 from inspect import _signature_get_user_defined_method as _get_method
 
 # classical register
-def _cr_func(name: str, control: str, target: str, args: str) -> str:
-  ret = f'{name} q{target} -> c{_cr_func.nth}[0];'
-  _cr_func.creg.append(f'creg c{_cr_func.nth}[1];')
-  _cr_func.nth += 1
-  return ret
+def _cr_func(name: str, _control: List[int], target: List[int], arg: int) -> str:
+  _cr_func.creg.append(f'creg c{arg}[1];')
+  return f'{name} q{target} -> c{arg};'
+
+# parse AST(abstract syntax tree) of adaptive gate
+class _adaptive_classical_register(ast.NodeTransformer):
+  def __init__(self):
+    super().__init__()
+    self.cr_val = []
+
+  def visit_Call(self, node):
+    if len(node.args) == 0:
+      return
+    n0 = node.args[0]
+    if (isinstance(n0, ast.Call) and hasattr(n0, 'func') and
+        hasattr(n0.func, 'id') and n0.func.id == 'Adaptive'):
+      try:
+        cr = n0.args[-1].body.left.slice.value.value
+        val = n0.args[-1].body.comparators[0].value
+      except:
+        cr, val = -1, -1
+      self.cr_val.append((cr, val))
+
+_adaptive_cr = _adaptive_classical_register()
+_adaptive_cr.visit(ast.parse(open(os.path.abspath(__file__), 'r').read()))
+_adaptive_cr_val = _adaptive_cr.cr_val
+
+# adaptive gate
+def _adaptive_func(
+    name: str, _control: List[int], _target: List[int],
+    args: List[Union[QuantumGateBase, int]]) -> str:
+  gate, nth = args
+  g_name = gate.get_name()
+  if g_name not in _qasm_trans_tbl:
+    print(f'unkown gate in adaptive gate: {g_name}', file=stderr)
+    return ''
+  g = _qasm_trans_tbl[g_name]
+  target = gate.get_target_index_list()[:1]
+  if not target:
+    print(f'gate within adaptive gate has no target qubit: {g_name}', file=stderr)
+    return ''
+  if not _adaptive_cr_val:
+    print(f'none classical registers in this circuit', file=stderr)
+    return ''
+
+  if len(_adaptive_cr_val) > nth:
+    cr, val = _adaptive_cr_val[nth]
+    if cr == val == -1:
+      print(f'incorrect value in adaptive gate {nth}', file=stderr)
+      return
+    return f'if(c{cr}=={val}) {g[0]} q{target};'
+  else:
+    print(f'there is no adaptive gate {nth} in this circuit', file=stderr)
 
 # transition table
 _qasm_trans_tbl = {
@@ -61,6 +111,8 @@ _qasm_trans_tbl = {
   'I': ['id', (0, 1, 0)],
   # Qubit read out
   'Measurement': ['measure', (0, 1, 1), _cr_func],
+  # Adaptive
+  'Adaptive': ['adaptive', (0, 0, 2), _adaptive_func],
   # Barrier
   'Separator': [
     'barrier', (0, 2, 0),
@@ -68,10 +120,10 @@ _qasm_trans_tbl = {
   ]
 }
 
-# QASM format
+# convert to QASM format
 def to_qasm(self: QuantumCircuit) -> str:
   # classical register
-  _cr_func.nth = 0; _cr_func.creg = []
+  _cr_func.creg = []; adaptive_nth = 0
   code = [
     # header and register
     f'OPENQASM 2.0;\ninclude "qelib1.inc";\nqreg q[{self.get_qubit_count()}];'
@@ -85,18 +137,21 @@ def to_qasm(self: QuantumCircuit) -> str:
     g = _qasm_trans_tbl[name]
     f = g[-1] if len(g) > 2 and callable(g[-1]) else None
     name, (nc, nt, nargs) = g[0:2] 
-    control = gate.get_control_index_list()
-    target = gate.get_target_index_list()
-    args = []
-    if _get_method(gate, 'get_parameter'):
-      args = gate.get_parameter()
-      args = args if isinstance(args, list) else [args]
-    a = ('' if nargs == 0 else
-         f'{args[:nargs][0] if nargs > 0 else args[nargs:][0]}')
-    c, t = control[:nc], target[:nt]
+    c = gate.get_control_index_list()[:nc]
+    t = gate.get_target_index_list()[:nt]
     if not f:
       c = ','.join([f'q[{ic}]' for ic in c])
       t = ','.join([f'q[{it}]' for it in t])
+    a = []
+    if _get_method(gate, 'get_parameter'):
+      a = gate.get_parameter()
+      a = [a] if isinstance(a, int) else a
+    if isinstance(a, list):
+      a = ('' if nargs == 0 or not a else
+           f'{a[:nargs][0] if nargs > 0 else a[nargs:][0]}')
+    if name == 'adaptive':
+      a = [a, adaptive_nth]
+      adaptive_nth += 1
     code.append(
       f(name, c, t, a) if f else f'{name}{(a)} {c+"," if c else c}{t};'
     )
@@ -221,7 +276,7 @@ if __name__ == '__main__':
   circuit.add_Separator(0, 2);
   circuit.add_gate(Measurement(0, 0))
   circuit.add_gate(Measurement(1, 1))
-  circuit.add_gate(Adaptive(X(2), lambda cr: cr[0] == 1))
+  circuit.add_gate(Adaptive(X(2), lambda cr: cr[1] == 1))
   circuit.add_gate(Adaptive(Z(2), lambda cr: cr[0] == 1))
   circuit.add_CNOT_gate(1, 2);
   circuit.add_CZ_gate(0, 2);
