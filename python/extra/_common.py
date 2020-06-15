@@ -56,12 +56,23 @@ class AliasDict(dict):
   def add_alias(self, key, alias):
     self.aliases[alias] = key
 
-# QuantumState class without state vector
-#class QuantumEmptyState(QuantumStateBase):
-#  get_qubit_count: Callable[[QuantumStateBase], int] = lambda self: self._qubit_count
-#  get_qbit_graph : Callable[[], Graph] = QuantumState.get_qbit_graph
-#  set_qbit_graph : Callable[[QuantumStateBase, Graph], None] = QuantumState.set_qbit_graph
-#
-#  def __init__(self, n_qubits: int):
-#    self._qubit_count = n_qubits
+# Bloch sphere representation
+from qulacs.gate import Pauli
+import numpy as np
 
+def qubit_bloch_state(stv: List[float]) -> List[List[float]]:
+  num = int(np.log2(len(stv)))
+  rg = range(num)
+  stv = np.asarray(stv)
+  stv = np.outer(stv, np.conj(stv))
+  bloch_state = []
+  # 'I': 0, 'X': 1, 'Y': 2, 'Z': 3
+  xyz = np.zeros((num, 3, num), dtype=int)
+  for i, v in enumerate(xyz): v[:,i] = [1, 2, 3]
+  for i in range(num):
+    pauli_singles = [Pauli(rg, p) for p in xyz[i]]
+    bloch_state.append(list(
+      map(lambda x: np.real(np.trace(np.dot(x.get_matrix(), stv))),
+          pauli_singles)))
+
+  return bloch_state
