@@ -153,7 +153,7 @@ def to_qasm(self: QuantumCircuit) -> str:
       a = [a, adaptive_nth]
       adaptive_nth += 1
     code.append(
-      f(name, c, t, a) if f else f'{name}{(a)} {c+"," if c else c}{t};'
+      f(name, c, t, a) if f else f'{name}{"("+str(a)+ ")" if a else a} {c+"," if c else c}{t};'
     )
 
   # declare classical register
