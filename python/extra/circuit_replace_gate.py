@@ -105,7 +105,7 @@ _compound_gate.add_alias('Tdag', 'Tdagg')
 _compound_gate.add_alias('Sdag', 'Sdagg')
 
 # replace
-def replace_to_primitive_gates(self: QuantumCircuit) -> QuantumCircuit:
+def adapt_to_command_restriction(self: QuantumCircuit) -> QuantumCircuit:
   nc = QuantumCircuit(self.get_qubit_count())
   for gidx in range(self.get_gate_count()):
     gate = self.get_gate(gidx) # deepcopy
@@ -141,4 +141,4 @@ def replace_to_primitive_gates(self: QuantumCircuit) -> QuantumCircuit:
 
   return nc
   
-add_method(QuantumCircuit, replace_to_primitive_gates)
+add_method(QuantumCircuit, adapt_to_command_restriction)

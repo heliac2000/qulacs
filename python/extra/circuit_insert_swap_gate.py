@@ -8,7 +8,7 @@ from itertools import tee
 from inspect import getmembers, ismethod
 
 # insert swap gates on both sides
-def insert_swap_gate(self) -> QuantumCircuit:
+def adapt_to_connection_restriction(self) -> QuantumCircuit:
   # utility function
   def pairwise(iterable: List[int]) -> Iterator[Tuple[int, int]]:
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
@@ -90,5 +90,5 @@ def _find_shortest_path(self, start, goal):
 
   return path[::-1]
 
-add_method(QuantumCircuit, insert_swap_gate)
+add_method(QuantumCircuit, adapt_to_connection_restriction)
 add_method(QuantumCircuit, _find_shortest_path)
