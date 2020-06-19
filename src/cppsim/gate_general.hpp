@@ -583,5 +583,13 @@ public:
     virtual QuantumGateBase* get_parameter() const {
 			return _gate->copy();
     };
+    /**
+     * \~japanese-en 評価式を返す
+     *
+     * @return 評価式
+     */
+    virtual std::function<bool(const std::vector<UINT>&)> get_lambda() const {
+			return _func;
+    };
 };
 
