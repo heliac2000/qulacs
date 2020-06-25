@@ -95,7 +95,8 @@ class CMakeBuild(build_ext):
         elif os.getenv('QULACS_OPT_FLAGS'):
             opt_flags = os.getenv('QULACS_OPT_FLAGS')
         else:
-            opt_flags = None
+            #opt_flags = None
+            opt_flags = '-msse4.1'
         if opt_flags:
             cmake_args += ['-DOPT_FLAGS=' + opt_flags]
 
