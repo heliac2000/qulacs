@@ -2,7 +2,7 @@
 ## Classes and functions
 ##
 
-from qulacs import QuantumGateBase, QuantumCircuit
+from qulacs import QuantumGateBase, QuantumCircuit, QuantumState
 from math import pi
 from typing import Dict, List, Callable
 
@@ -57,10 +57,10 @@ class AliasDict(dict):
     self.aliases[alias] = key
 
 # Bloch sphere representation
-from qulacs.gate import Pauli
-import numpy as np
-
 def qubit_bloch_state(stv: List[float]) -> List[List[float]]:
+  from qulacs.gate import Pauli
+  import numpy as np
+
   num = int(np.log2(len(stv)))
   rg = range(num)
   stv = np.asarray(stv)
@@ -76,3 +76,28 @@ def qubit_bloch_state(stv: List[float]) -> List[List[float]]:
           pauli_singles)))
 
   return bloch_state
+
+# initialize a qubit with probability amplitude
+def initialize_qubit(self: QuantumState, qidx: int, pamp: List[complex]) -> None:
+  import inspect
+  import numpy as np
+  from functools import reduce
+
+  func_name = inspect.currentframe().f_code.co_name
+  n = self.get_qubit_count()
+  if n < 1:
+    print(f'{func_name}: there is no qubits in quantum state', file=stderr)
+    return
+  elif qidx < 0 or qidx >= n:
+    print(f'{func_name}: incorrect qubit index: {qidx}', file=stderr)
+    return
+
+  # set |0> state to all qubits
+  qubits = np.array([[1, 0]] * n, dtype=complex)
+  qubits[qidx] = pamp
+  # probability amplitude -> state vector
+  stv = reduce(lambda a, b: np.kron(b, a), qubits)
+  self.load(stv)
+  self.normalize(self.get_squared_norm())
+
+add_method(QuantumState, initialize_qubit)
