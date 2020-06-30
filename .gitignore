@@ -213,6 +213,7 @@ dkms.conf
 # ccls(C/C++/Objective-C language server)
 .ccls
 .ccls-cache/
+compile_commands.json
 
 # symbolic link
 src/Eigen
