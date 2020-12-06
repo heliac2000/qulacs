@@ -3,12 +3,13 @@
 ##
 
 from qulacs import QuantumCircuit, add_method, is_SWAP_gate
-from typing import List, Iterator, Tuple
+from typing import List, Iterator, Tuple, Union
 from itertools import tee
 from inspect import getmembers, ismethod
 
 # insert swap gates on both sides
-def adapt_to_measurement_restriction(self, pos: int) -> QuantumCircuit:
+def adapt_to_measurement_restriction(
+  self, pos: int) -> Union[QuantumCircuit, None]:
   # utility function
   def pairwise(iterable: List[int]) -> Iterator[Tuple[int, int]]:
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
@@ -16,7 +17,21 @@ def adapt_to_measurement_restriction(self, pos: int) -> QuantumCircuit:
     next(b, None)
     return zip(a, b)
 
-  # main
+  # check constraint graph
+  graph = self.get_qbit_graph()
+  # there is no constraint graph
+  if len(graph) == 0:
+    print('no constraint graph', file=stderr)
+    return None
+  # no gate in circuit
+  if self.get_gate_count() == 0:
+    print('no gate in circuit', file=stderr)
+    return None
+  # maximum constraint index is greater than number of qubits of this circuit
+  if (self.get_qubit_count() - 1) < max(graph.keys()):
+    print('maximum constraint index is greater than number of qubits', file=stderr)
+    return None
+
   measure = []
   for gate_idx in range(self.get_gate_count()):
     gate = self.get_gate(gate_idx)
