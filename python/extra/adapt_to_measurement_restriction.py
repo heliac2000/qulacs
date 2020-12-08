@@ -9,7 +9,7 @@ from inspect import getmembers, ismethod
 
 # insert swap gates on both sides
 def adapt_to_measurement_restriction(
-  self, pos: int) -> Union[QuantumCircuit, None]:
+  self, pos: List[int]) -> Union[QuantumCircuit, None]:
   # utility function
   def pairwise(iterable: List[int]) -> Iterator[Tuple[int, int]]:
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
@@ -51,19 +51,21 @@ def adapt_to_measurement_restriction(
 
     # insert swap gates
     target = gate.get_target_index_list()[0]
-    if target == pos: # same qubit
+    if target in pos: # same qubit
       nc.add_gate(gate)
       continue
-    path = self._find_shortest_path(target, pos)
-    if len(path) == 0: # route not found
+    paths = [self._find_shortest_path(target, p) for p in pos]
+    if not any(paths): # any route are not found
       nc.add_gate(gate)
       continue
+    min_path = min(filter(lambda x: len(x) > 0, paths), key=len)
+    pos_idx = pos[paths.index(min_path)]
     # forward
-    [nc.add_SWAP_gate(*pair) for pair in pairwise(path)]
+    [nc.add_SWAP_gate(*pair) for pair in pairwise(min_path)]
     # measurement gate
-    nc.add_gate(Measurement(pos, gate.get_parameter()[0]))
+    nc.add_gate(Measurement(pos_idx, gate.get_parameter()[0]))
     # backward
-    [nc.add_SWAP_gate(*pair) for pair in pairwise(path[::-1])]
+    [nc.add_SWAP_gate(*pair) for pair in pairwise(min_path[::-1])]
 
   return nc
 
