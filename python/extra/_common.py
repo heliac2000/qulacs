@@ -71,9 +71,13 @@ def qubit_bloch_state(stv: List[float]) -> List[List[float]]:
   for i, v in enumerate(xyz): v[:,i] = [1, 2, 3]
   for i in range(num):
     pauli_singles = [Pauli(rg, p) for p in xyz[i]]
-    bloch_state.append(list(
-      map(lambda x: np.real(np.trace(np.dot(x.get_matrix(), stv))),
-          pauli_singles)))
+    state = [
+      1.0*np.sign(i) if np.abs(i) > 1.0 else i
+      for i in map(
+        lambda x: np.real(np.trace(np.dot(x.get_matrix(), stv))),
+        pauli_singles)
+    ]
+    bloch_state.append(state)
 
   return bloch_state
 
